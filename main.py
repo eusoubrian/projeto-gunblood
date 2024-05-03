@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 import requests
-
+import datetime as datetime
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 def main():
     url_base = 'https://www.gunblood.com/gbscoresgd.php#google_vignette'
@@ -16,12 +18,14 @@ def main():
         # Processar a primeira tabela (últimos 7 dias)
         last_7_days_table = tables[0]
         df = process_table(last_7_days_table)
-        df_relatorio = df.to_csv('teste7.csv')
+        assunto = 'sete_dias'
+        write(df, assunto)
 
         # Processar a segunda tabela (all time)
         all_time_table = tables[1]
         df = process_table(all_time_table)
-        df_relatorio = df.to_csv('teste_all_time.csv')
+        assunto = 'all_time'
+        write(df, assunto)
 
     else:
         print("Erro: Não foram encontradas duas tabelas na página.")
@@ -54,7 +58,27 @@ def process_table(table):
         column_df['player'].append(dado_player)
 
     df = pd.DataFrame(column_df)
+    df['dat_ingestao'] = pd.to_datetime(datetime.datetime.now())
     return df
+
+def write(df, assunto):
+    path = f'datalake/{assunto}/' #TODO
+
+    partition_cols = ['ano', 'mes', 'dia']
+
+    df['ano']   = df['dat_ingestao'].dt.strftime('%Y').astype('string')
+    df['mes']   = df['dat_ingestao'].dt.strftime('%Y%m').astype('string')
+    df['dia']   = df['dat_ingestao'].dt.strftime('%Y%m%d').astype('string')
+
+    # Converter o DataFrame Pandas para um Table Arrow
+    table = pa.Table.from_pandas(df)
+
+    # Escrever em Parquet particionado
+    pq.write_to_dataset(
+        table,
+        root_path=path,
+        partition_cols=partition_cols
+    )
 
 
 if __name__ == '__main__':
