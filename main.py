@@ -2,8 +2,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import requests
 import datetime as datetime
-import pyarrow as pa
-import pyarrow.parquet as pq
+from config import helpers
 
 def main():
     url_base = 'https://www.gunblood.com/gbscoresgd.php#google_vignette'
@@ -62,22 +61,11 @@ def process_table(table):
     return df
 
 def write(df, assunto):
-    path = f'datalake/{assunto}/' #TODO
+    path = f'datalake/{assunto}/file_{assunto}.xlsx' #TODO
 
-    partition_cols = ['ano', 'mes', 'dia']
-
-    df['ano']   = df['dat_ingestao'].dt.strftime('%Y').astype('string')
-    df['mes']   = df['dat_ingestao'].dt.strftime('%Y%m').astype('string')
-    df['dia']   = df['dat_ingestao'].dt.strftime('%Y%m%d').astype('string')
-
-    # Converter o DataFrame Pandas para um Table Arrow
-    table = pa.Table.from_pandas(df)
-
-    # Escrever em Parquet particionado
-    pq.write_to_dataset(
-        table,
-        root_path=path,
-        partition_cols=partition_cols
+    df.to_excel(
+        path,
+        index=False
     )
 
 

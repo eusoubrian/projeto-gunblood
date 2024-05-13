@@ -44,6 +44,4 @@ cdk.out
 
 cdk.context.json
 
-.venv
-.env
-/env/
+env/
