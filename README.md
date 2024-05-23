@@ -1,6 +1,6 @@
 # 🔫 GunBlood Web Scraper & Dashboard
 
-Este projeto utiliza web scraping para extrair dados de tabelas de ranking de um jogo, processa esses dados e exibe-os em um dashboard interativo usando Plotly e Streamlit.
+Este projeto utiliza web scraping para extrair dados de tabelas de ranking do jogo Gunblood, processa esses dados e exibe-os em um dashboard interativo usando Plotly e Streamlit.
 
 <img src="img\gunblood.jpg" alt="Descrição da imagem">
 
